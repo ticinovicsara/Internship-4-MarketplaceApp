@@ -54,9 +54,15 @@ namespace MarketplaceApp.Domain
             Status = newstatus;
         }
 
+        private int ratingCount = 0;
+        private decimal totalRating = 0;
+
         public void AddRating(decimal newrating)
         {
-            AverageRating = (AverageRating + newrating) / 2;
+            ratingCount++;
+            totalRating += newrating;
+
+            AverageRating = totalRating / ratingCount;
         }
 
     }
