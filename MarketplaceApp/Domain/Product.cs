@@ -59,6 +59,5 @@ namespace MarketplaceApp.Domain
             AverageRating = (AverageRating + newrating) / 2;
         }
 
-
     }
 }

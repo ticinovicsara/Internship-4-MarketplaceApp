@@ -16,6 +16,7 @@ namespace MarketplaceApp.Data
         private List<Seller> Sellers { get; set; } = new List<Seller>();
         private List<Product> Products { get; set; } = new List<Product>();
         private List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        private List<PromoCode> PromoCodes { get; set; } = new List<PromoCode>();
         private decimal maketplaceComission;
 
         public void RegisterBuyer(string name, string email, decimal balance)
@@ -53,19 +54,31 @@ namespace MarketplaceApp.Data
         }
 
 
-        public bool TryBuyProduct(Buyer buyer, Product product)
+        public bool TryBuyProduct(Buyer buyer, Product product, string promoCode = null)
         {
+            decimal finalPrice = product.Price;
+            if (!string.IsNullOrEmpty(promoCode))
+            {
+                var code = PromoCodes.FirstOrDefault(pc => pc.Code.Equals(promoCode, StringComparison.OrdinalIgnoreCase));
+                if(code == null || !code.IsValid(product.Category, DateTime.Now))
+                {
+                    throw new InvalidOperationException("Promotivni kod nije valjan\n");
+                }
+
+                finalPrice += finalPrice * (code.Discount / 100);
+            }
+
             if (buyer.Balance < product.Price || product.Status != ProductStatus.OnSale)
             {
                 return false;
             }
 
-            buyer.DeductBalance(product.Price);
+            buyer.DeductBalance(finalPrice);
             product.ChangeStatus(ProductStatus.Sold);
             buyer.PurchasedProducts.Add(product);
-            maketplaceComission += product.Price * 0.05m;
-            product.Seller.Earnings += product.Price * 0.95m;
-            LogTransaction(buyer, product.Seller, product.Price - maketplaceComission);
+            maketplaceComission += finalPrice * 0.05m;
+            product.Seller.Earnings += finalPrice * 0.95m;
+            LogTransaction(buyer, product.Seller, finalPrice - maketplaceComission);
             return true; 
         }
 
@@ -116,7 +129,7 @@ namespace MarketplaceApp.Data
 
             var sallerTransactions = Transactions.Where(t => t.SellerName == seller.Name && t.DateOfTransacton >= startDate && t.DateOfTransacton <= endDate).ToList();
 
-            foreach(var transaction in sallerTransactions)
+            foreach (var transaction in sallerTransactions)
             {
                 totalEarnings += transaction.Amount;
             }
@@ -129,6 +142,26 @@ namespace MarketplaceApp.Data
         public void UpdateProductPrice(Seller seller, Product product, decimal newprice)
         {
             product.ChangePrice(newprice, seller);
+        }
+
+        public void AddPromoCode(string code, string category, decimal discount, DateTime expirationDate)
+        {
+            if(PromoCodes.Any(pc => pc.Code.Equals(code, StringComparison.OrdinalIgnoreCase))){
+                throw new InvalidCastException("Promotivni kod vec postoji\n");
+            }
+
+            PromoCode newCode = new PromoCode(code, category, discount, expirationDate);
+            PromoCodes.Add(newCode);
+        }
+
+        public List<PromoCode> GetPromoCodesByCategory(string category)
+        {
+            return PromoCodes.Where(pc => pc.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        public void AddRating(Product product, decimal rating)
+        { 
+            product.AddRating(rating);
         }
     }
 }
