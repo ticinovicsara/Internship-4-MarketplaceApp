@@ -1,9 +1,13 @@
-﻿using System;
+﻿using MarketplaceApp.Data;
+using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Domain.Repositories;
+using MarketplaceApp.Presentation.UserActions;
+using MarketplaceApp.Presentation.Menus;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MarketplaceApp.Presentation.UserActions;
 
 namespace MarketplaceApp.Presentation
 {
@@ -12,12 +16,30 @@ namespace MarketplaceApp.Presentation
         static void Main()
         {
             var context = new Context();
+
+            var transactionService = new TransactionService(context);
+
             var userRepository = new UserRepository(context);
+            var sellerRepository = new SellerRepository(context);
             var productRepository = new ProductRepository(context);
             var promoCodeRepository = new PromoCodeRepository(context);
-            var marketplaceRepository = new MarketplaceRepository(context);
 
-            var seed = new Seed(context, userRepository, marketplaceRepository, productRepository, promoCodeRepository);
+            var marketplaceRepository = new MarketplaceRepository(
+                transactionService,
+                userRepository,
+                sellerRepository,
+                productRepository,
+                promoCodeRepository,
+                context
+            );
+
+            var buyerRepository = new BuyerRepository(context, transactionService);
+
+            var handleRegistration = new HandleRegistration(context, marketplaceRepository);
+            var handleLogin = new HandleLogin(context, marketplaceRepository);
+
+
+            var seed = new Seed(context);
             seed.InitializeData();
 
 
@@ -46,12 +68,12 @@ namespace MarketplaceApp.Presentation
 
                             if (role == "1")
                             {
-                                HandleRegistration.RegisterBuyer(marketplaceRepository);
+                                handleRegistration.RegisterBuyer();
                                 break;
                             }
                             else if (role == "2")
                             {
-                                HandleRegistration.RegisterSeller(marketplaceRepository);
+                                handleRegistration.RegisterSeller();
                                 break;
                             }
                             else if (role == "0")
@@ -68,7 +90,7 @@ namespace MarketplaceApp.Presentation
                         break;
 
                     case "2":
-                        HandleLogin.LoginUser(marketplaceRepository);
+                        handleLogin.LoginUser();
                         break;
 
                     case "3":

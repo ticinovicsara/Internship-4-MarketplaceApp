@@ -1,48 +1,58 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MarketplaceApp.Data.Entities.Models;
 
 namespace MarketplaceApp.Data
 {
     public class Seed
     {
-        public class Seed
+        private readonly Context _context;
+
+        public Seed(Context context)
         {
-            private readonly UserRepository _userRepository;
-            private readonly MarketplaceRepository _marketplaceRepository;
-            private readonly ProductRepository _productRepository;
-            private readonly PromoCodeRepository _promoCodeRepository;
-
-            public Seed(UserRepository userRepository, MarketplaceRepository marketplaceRepository, ProductRepository productRepository, PromoCodeRepository promoCodeRepository)
-            {
-                _userRepository = userRepository;
-                _marketplaceRepository = marketplaceRepository;
-                _productRepository = productRepository;
-                _promoCodeRepository = promoCodeRepository;
-            }
+            _context = context;
         }
-
 
         public void InitializeData()
         {
-            _userRepository.RegisterBuyer("Ana Anic", "ana@gmail.com", 5000);
-            _userRepository.RegisterSeller("Marko Markic", "marko@gmail.com");
+            Buyer ana = new Buyer("Ana Anic", "ana@gmail.com", 5000);
+            Seller marko = new Seller("Marko Markic", "marko@gmail.com");
 
-            var marko = _marketplaceRepository.LoginUser("marko@gmail.com") as Seller;
+            Product product1 = new Product("Laptop", "Brzi laptop za rad", 300, "Elektronika", marko);
+            Product product2 = new Product("Pametni telefon", "Pametni telefon", 450, "Elektronika", marko);
+            Product product3 = new Product("Kosulja", "Odjevni predmet", 300, "Roba", marko);
+            Product product4 = new Product("Sat", "Otkucava", 450, "Nakit", marko);
 
-            _productRepository.AddProduct(marko, "Laptop", "Brzi laptop za rad", 300, "Elektronika");
-            _productRepository.AddProduct(marko, "Pametni telefon", "Pametni telefon", 450, "Elektronika");
-            _productRepository.AddProduct(marko, "Kosulja", "Odjevni predmet", 300, "Roba");
-            _productRepository.AddProduct(marko, "Sat", "Otkucava", 450, "Nakit");
+            PromoCode promo1 = new PromoCode("ELEC10", "Elektronika", 10, DateTime.Now.AddDays(10));
+            PromoCode promo2 = new PromoCode("SALE20", "Roba", 20, DateTime.Now.AddDays(5));
 
-            _promoCodeRepository.AddPromoCode("ELEC10", "Elektronika", 10, DateTime.Now.AddDays(10));
-            _promoCodeRepository.AddPromoCode("SALE20", "Roba", 20, DateTime.Now.AddDays(5));
+            ana.PurchasedProducts.Add(product1);
+            ana.PurchasedProducts.Add(product2);
+            marko.Earnings += product1.Price - 0.05*product1.Price;
+            marko.Earnings += product2.Price - 0.05 * product2.Price;
 
-            var ana = _userRepository.LoginUser("ana@gmail.com") as Buyer;
-            var product = _context.Products.FirstOrDefault(p => p.Title == "Pametni telefon");
-            bool kupovina = _marketplaceRepository.TryBuyProduct(ana, product, "ELEC10");
+            _context.Buyers.Add(ana);
+            _context.Sellers.Add(marko);
+
+            _context.Products.Add(product1);
+            _context.Products.Add(product2);
+            _context.Products.Add(product3);
+            _context.Products.Add(product4);
+
+            marko.Products.Add(product1);
+            marko.Products.Add(product2);
+            marko.Products.Add(product3);
+            marko.Products.Add(product4);
+
+            _context.PromoCodes.Add(promo1);
+            _context.PromoCodes.Add(promo2);
+
+            Transaction transaction1 = new Transaction(ana, marko, product1.Price);
+            Transaction transaction2 = new Transaction(ana, marko, product2.Price);
+
+            _context.Transactions.Add(transaction1);
+            _context.Transactions.Add(transaction2);
         }
-
     }
-
 }

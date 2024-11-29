@@ -1,37 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
+using MarketplaceApp.Domain.Repositories;
+using System.Transactions;
 
-namespace MarketplaceApp.Domain.Repostories
+namespace MarketplaceApp.Domain.Repositories
 {
-    public class MarketplaceRepository
+    public class MarketplaceRepository : ITransactionService
     {
         private readonly UserRepository _userRepository;
         private readonly SellerRepository _sellerRepository;
         private readonly BuyerRepository _buyerRepository;
         private readonly ProductRepository _productRepository;
         private readonly PromoCodeRepository _promoCodeRepository;
+        private readonly ITransactionService _transactionService;
+        private readonly Context _context;
 
         decimal marketplaceCommission = 0;
 
         public MarketplaceRepository(
+            ITransactionService transactionService,
             UserRepository userRepository,
             SellerRepository sellerRepository,
-            BuyerRepository buyerRepository,
             ProductRepository productRepository,
             PromoCodeRepository promoCodeRepository,
             Context context)
         {
             _userRepository = userRepository;
             _sellerRepository = sellerRepository;
-            _buyerRepository = buyerRepository;
             _productRepository = productRepository;
             _promoCodeRepository = promoCodeRepository;
+            _transactionService = transactionService;
             _context = context;
         }
-
-        decimal marketplaceCommission = 0;
 
 
         public User LoginUser(string email)
@@ -53,11 +58,8 @@ namespace MarketplaceApp.Domain.Repostories
             if (_userRepository.UserExists(email))
                 throw new InvalidOperationException("Prodavac s tim emailom već postoji.");
 
-            var seller = new Seller
-            {
-                Name = name,
-                Email = email,
-            };
+            var seller = new Seller(name, email);
+
             _userRepository.AddSeller(seller);
         }
 
@@ -67,38 +69,34 @@ namespace MarketplaceApp.Domain.Repostories
             if (_userRepository.UserExists(email))
                 throw new InvalidOperationException("Kupac s tim emailom već postoji.");
 
-            var buyer = new Buyer
-            {
-                Name = name,
-                Email = email,
-                Balance = balance
-            };
+            var buyer = new Buyer(name, email, balance);
+
             _userRepository.AddBuyer(buyer);
         }
 
 
-        public bool TryBuyProduct(Buyer buyer, Product product, string promoCode = null)
+        public bool TryBuyProduct(Buyer buyer, Product product, string? promoCode = null)
         {
             decimal finalPrice = product.Price;
 
             if (!string.IsNullOrEmpty(promoCode))
             {
                 var code = _context.PromoCodes.FirstOrDefault(pc => pc.Code.Equals(promoCode, StringComparison.OrdinalIgnoreCase));
-                if (code == null || !code.IsValid(product.Category, DateTime.Now))
+                if (code == null || !IsValid(product.Category, DateTime.Now))
                 {
-                    throw new InvalidOperationException("Promotivni kod nije valjan\n");
+                    Console.WriteLine("\nPromotivni kod nije valjan\n");
                 }
                 finalPrice -= finalPrice * (code.Discount / 100);
             }
 
-            if (buyer.Balance < product.Price || product.Status != ProductStatus.OnSale)
+            if (buyer.Balance < product.Price || product.Status != Product.ProductStatus.OnSale)
             {
                 return false;
             }
 
             buyer.Balance -= finalPrice;
 
-            product.Status = ProductStatus.Sold;
+            product.Status = Product.ProductStatus.Sold;
             buyer.PurchasedProducts.Add(product);
 
             marketplaceCommission += finalPrice * 0.05m;
@@ -110,14 +108,15 @@ namespace MarketplaceApp.Domain.Repostories
 
         public void LogTransaction(Buyer buyer, Seller seller, decimal amount)
         {
-            var transaction = new Transaction
-            {
-                BuyerName = buyer.Name,
-                SellerName = seller.Name,
-                Amount = amount,
-                DateOfTransaction = DateTime.Now
-            };
-            _context.Transactions.Add(transaction);
+            _transactionService.LogTransaction(buyer, seller, amount);
+        }
+
+
+        public bool IsValid(string productCategory, DateTime currDate)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.Category.Equals(productCategory, StringComparison.OrdinalIgnoreCase));
+
+            return product != null;
         }
 
 
@@ -156,35 +155,15 @@ namespace MarketplaceApp.Domain.Repostories
             return _sellerRepository.GetTotalEarnings();
         }
         
-
         public decimal GetEarningsForTimePeriod(Seller seller, DateTime startDate, DateTime endDate)
         {
             return _sellerRepository.GetEarningsForTimePeriod(seller, startDate, endDate);
         }
 
 
-        public bool IsValid(string productCategory, DateTime currDate)
-        {
-            return Category.Equals(productCategory, StringComparison.OrdinalIgnoreCase) && ExpirationDate > currDate;
-
-        }
-
-
         public void AddPromoCode(string code, string category, decimal discount, DateTime expirationDate)
         {
-            if (_context.PromoCodes.Any(pc => pc.Code.Equals(code, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new InvalidCastException("Promotivni kod vec postoji\n");
-            }
-
-            PromoCode newCode = new PromoCode
-            {
-                Code = code,
-                Category = category,
-                Discount = discount,
-                ExpirationDate = expirationDate
-            };
-            _context.PromoCodes.Add(newCode);
+            _promoCodeRepository.AddPromoCode(code, category, discount, expirationDate);
         }
 
         public List<PromoCode> GetPromoCodesByCategory(string category)
@@ -199,9 +178,9 @@ namespace MarketplaceApp.Domain.Repostories
         }
 
 
-        public void AddRating(ProductRepository product, decimal rating)
+        public void AddRating(Product product, decimal rating)
         {
-            product.AddRating(rating);
+            _productRepository.AddRating(product, rating);
         }
 
     }

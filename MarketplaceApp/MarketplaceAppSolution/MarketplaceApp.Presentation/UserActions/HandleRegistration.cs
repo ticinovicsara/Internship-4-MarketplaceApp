@@ -1,4 +1,5 @@
 ﻿using MarketplaceApp.Data;
+using MarketplaceApp.Domain.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,16 @@ namespace MarketplaceApp.Presentation.UserActions
 {
     public class HandleRegistration
     {
+        private readonly Context _context;
+        private readonly MarketplaceRepository _marketplaceRepository;
 
-        public static void RegisterBuyer(MarketplaceRepository marketplaceRepository)
+        public HandleRegistration(Context context, MarketplaceRepository marketplaceRepository)
+        {
+            _context = context;
+            _marketplaceRepository = marketplaceRepository;
+        }
+
+        public void RegisterBuyer()
         {
             string name = GetValidName();
 
@@ -39,7 +48,7 @@ namespace MarketplaceApp.Presentation.UserActions
             }
 
 
-            marketplaceRepository.RegisterBuyer(name, email, balance);
+            _marketplaceRepository.RegisterBuyer(name, email, balance);
             Console.WriteLine("\nKupac uspjesno registriran\n");
 
             Console.WriteLine("\nPritisnite bilo sto za povratak...\n");
@@ -48,7 +57,7 @@ namespace MarketplaceApp.Presentation.UserActions
             return;
         }
 
-        public static void RegisterSeller(MarketplaceRepository marketplaceRepository)
+        public void RegisterSeller()
         {
             string name = GetValidName();
 
@@ -66,7 +75,7 @@ namespace MarketplaceApp.Presentation.UserActions
                 break;
             }
 
-            marketplaceRepository.RegisterSeller(name, email);
+            _marketplaceRepository.RegisterSeller(name, email);
             Console.WriteLine("\nProdavac uspjesno registriran\n");
 
             Console.WriteLine("\nPritisnite bilo sto za povratak...\n");
@@ -76,7 +85,7 @@ namespace MarketplaceApp.Presentation.UserActions
         }
 
 
-        private static string GetValidName()
+        private string GetValidName()
         {
             while (true)
             {

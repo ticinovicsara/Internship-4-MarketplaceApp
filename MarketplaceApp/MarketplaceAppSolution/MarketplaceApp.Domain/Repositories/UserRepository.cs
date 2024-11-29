@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
 
-namespace MarketplaceApp.Domain.Repostories
+namespace MarketplaceApp.Domain.Repositories
 {
     public class UserRepository
     {
         private readonly Context _context;
-
+        
         public UserRepository(Context context)
         {
             _context = context;
@@ -26,13 +30,11 @@ namespace MarketplaceApp.Domain.Repostories
         public void AddBuyer(Buyer buyer)
         {
             _context.Buyers.Add(buyer);
-            _context.SaveChanges();
         }
 
         public void AddSeller(Seller seller)
         {
             _context.Sellers.Add(seller);
-            _context.SaveChanges();
         }
 
         public bool UserExists(string email)

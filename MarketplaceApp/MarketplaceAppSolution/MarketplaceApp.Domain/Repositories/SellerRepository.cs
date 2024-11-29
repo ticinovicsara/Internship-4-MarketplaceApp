@@ -1,9 +1,10 @@
-﻿using MarketplaceApp.Data.Entities.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
 
 namespace MarketplaceApp.Domain.Repositories
 {
@@ -20,16 +21,12 @@ namespace MarketplaceApp.Domain.Repositories
             seller.Products.Add(product);
         }
 
-        public decimal GetTotalEarnings()
-        {
-            return Products.Where(p => p.Status == Product.ProductStatus.Sold).Sum(p => p.Price * 0.95m);
-        }
 
         public decimal GetEarningsForTimePeriod(Seller seller, DateTime startDate, DateTime endDate)
         {
             decimal totalEarnings = 0;
 
-            var sallerTransactions = _context.Transactions.Where(t => t.SellerName == seller.Name && t.DateOfTransacton >= startDate && t.DateOfTransacton <= endDate).ToList();
+            var sallerTransactions = _context.Transactions.Where(t => t.SellerName == seller.Name && t.DateOfTransaction >= startDate && t.DateOfTransaction <= endDate).ToList();
 
             foreach (var transaction in sallerTransactions)
             {

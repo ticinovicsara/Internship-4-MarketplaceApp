@@ -1,18 +1,27 @@
 ﻿using MarketplaceApp.Data;
+using MarketplaceApp.Domain.Repositories;
+using MarketplaceApp.Presentation.Menus;
+using MarketplaceApp.Data.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using MarketplaceApp.Data.Entities.Models;
-using MarketplaceApp.Presentation.Menus;
-
 namespace MarketplaceApp.Presentation.UserActions
 {
     public class HandleLogin
     {
-        public static void LoginUser(MarketplaceRepository marketplaceRepository)
+        private readonly Context _context;
+        private readonly MarketplaceRepository _marketplaceRepository;
+
+        public HandleLogin(Context context, MarketplaceRepository marketplaceRepository)
+        {
+            _context = context;
+            _marketplaceRepository = marketplaceRepository;
+        }
+
+        public void LoginUser()
         {
             Console.Clear();
             Console.WriteLine("Prijava korisnika:\n");
@@ -21,17 +30,17 @@ namespace MarketplaceApp.Presentation.UserActions
 
             try
             {
-                var user = marketplaceRepository.LoginUser(email);
+                var user = _marketplaceRepository.LoginUser(email);
                 Console.Clear();
                 Console.WriteLine($"Dobrodosli, {user.Name}\n");
 
                 if (user is Buyer buyer)
                 {
-                    LoginBuyer(marketplaceRepository, buyer);
+                    LoginBuyer(_marketplaceRepository, buyer);
                 }
                 else if (user is Seller seller)
                 {
-                    LoginSeller(marketplaceRepository, seller);
+                    LoginSeller(_marketplaceRepository, seller);
                 }
             }
             catch (InvalidOperationException ex)
@@ -41,13 +50,13 @@ namespace MarketplaceApp.Presentation.UserActions
             }
         }
 
-        private static void LoginBuyer(MarketplaceRepository marketplaceRepository, Buyer buyer)
+        private void LoginBuyer(MarketplaceRepository marketplaceRepository, Buyer buyer)
         {
             Console.Clear();
             BuyerMenu.ShowBuyerMenu(marketplaceRepository, buyer);
         }
 
-        private static void LoginSeller(MarketplaceRepository marketplaceRepository, Seller seller)
+        private void LoginSeller(MarketplaceRepository marketplaceRepository, Seller seller)
         {
             Console.Clear();
             SellerMenu.ShowSellerMenu(marketplaceRepository, seller);

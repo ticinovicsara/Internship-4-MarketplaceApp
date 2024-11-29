@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
 
 namespace MarketplaceApp.Domain.Repositories
 {
@@ -18,16 +19,8 @@ namespace MarketplaceApp.Domain.Repositories
 
         public void AddProduct(Seller seller, string title, string description, decimal price, string category)
         {
-            var newProduct = new Product
-            {
-                Title = title,
-                Description = description,
-                Price = price,
-                Category = category,
-                Seller = seller,
-                Status = ProductStatus.OnSale 
-            };
-
+            Product newProduct = new Product(title, description, price, category, seller);
+            seller.Products.Add(newProduct);
             _context.Products.Add(newProduct);
         }
 
@@ -38,12 +31,22 @@ namespace MarketplaceApp.Domain.Repositories
 
         public List<Product> GetAvailableProducts()
         {
-            return _context.Products.Where(p => p.Status == ProductStatus.OnSale).ToList();
+            return _context.Products.Where(p => p.Status == Product.ProductStatus.OnSale).ToList();
         }
 
         public List<Product> GetProductsByCategory(string category)
         {
-            return _context.Products.Where(p => p.Category.Equals(category, StringComparison.OrdinalIgnoreCase) && p.Status == ProductStatus.OnSale).ToList();
+            return _context.Products.Where(p => p.Category.Equals(category, StringComparison.OrdinalIgnoreCase) && p.Status == Product.ProductStatus.OnSale).ToList();
+        }
+
+        private int ratingCount = 0;
+        private decimal totalRating = 0;
+
+        public void AddRating(Product product, decimal newRating)
+        {
+            ratingCount++;
+            totalRating += newRating;
+            product.AverageRating = totalRating / ratingCount;
         }
     }
 }

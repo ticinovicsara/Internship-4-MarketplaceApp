@@ -3,355 +3,383 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Domain.Repositories;
 
-public class BuyerMenu
+
+namespace MarketplaceApp.Presentation.Menus
 {
-    public static void ShowBuyerMenu(MarketplaceRepository marketplaceRepository, Buyer buyer)
+    public class BuyerMenu
     {
-        Console.Clear();
-        while (true)
+        public static void ShowBuyerMenu(MarketplaceRepository marketplaceRepository, Buyer buyer)
         {
-            Console.WriteLine($"Kupac: {buyer.Name}\n");
-            Console.WriteLine("1 - Pregled dostupnih proizvoda");
-            Console.WriteLine("2 - Kupnja proizvoda");
-            Console.WriteLine("3 - Povratak proizvoda");
-            Console.WriteLine("4 - Dodavanje prizvoda u omiljene");
-            Console.WriteLine("5 - Pregled povijesti kupljenih proizvoda");
-            Console.WriteLine("6 - Pregled omiljenih proizvoda");
-            Console.WriteLine("7 - Ocjenjivanje proizvoda");
-            Console.WriteLine("\n0 - Povratak / Odjava\n");
-
-            string choice = Console.ReadLine();
-
-            switch (choice)
+            Console.Clear();
+            while (true)
             {
-                case "1":
-                    Console.Clear();
+                Console.WriteLine($"Kupac: {buyer.Name}\n");
+                Console.WriteLine("1 - Pregled dostupnih proizvoda");
+                Console.WriteLine("2 - Kupnja proizvoda");
+                Console.WriteLine("3 - Povratak proizvoda");
+                Console.WriteLine("4 - Dodavanje prizvoda u omiljene");
+                Console.WriteLine("5 - Pregled povijesti kupljenih proizvoda");
+                Console.WriteLine("6 - Pregled omiljenih proizvoda");
+                Console.WriteLine("7 - Ocjenjivanje proizvoda");
+                Console.WriteLine("\n0 - Povratak / Odjava\n");
 
-                    var products = marketplaceRepository.GetAvailableProducts();
-                    Console.WriteLine("Dostupni proizvodi:\n");
-                    foreach (var product_ in products)
-                    {
-                        Console.WriteLine($"Naziv: {product_.Title} - Cijena: {product_.Price}");
-                    }
-                    Console.WriteLine("\nPritisnite bilo što za povratak...");
-                    Console.ReadKey();
-                    Console.Clear();
-                    break;
+                string choice = Console.ReadLine();
 
-                case "2":
-                    BuyProduct(marketplaceRepository, buyer);
-                    break;
+                switch (choice)
+                {
+                    case "1":
+                        Console.Clear();
 
-                case "3":
-                    ReturnProduct(marketplaceRepository, buyer);
-                    break;
+                        var products = marketplaceRepository.GetAvailableProducts();
+                        Console.WriteLine("Dostupni proizvodi:\n");
+                        foreach (var product_ in products)
+                        {
+                            Console.WriteLine($"Naziv: {product_.Title} - Cijena: {product_.Price}");
+                        }
+                        Console.WriteLine("\nPritisnite bilo što za povratak...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
 
-                case "4":
-                    AddToFavourites(marketplaceRepository, buyer);
-                    break;
+                    case "2":
+                        BuyProduct(marketplaceRepository, buyer);
+                        break;
 
-                case "5":
-                    Console.Clear();
-                    Console.WriteLine("Povijest kupljenih proizvoda:\n");
+                    case "3":
+                        ReturnProduct(marketplaceRepository, buyer);
+                        break;
 
-                    foreach (var purchasedProduct in buyer.PurchasedProducts)
-                    {
-                        Console.WriteLine($"\nNaziv: {purchasedProduct.Title}\nCijena: {purchasedProduct.Price}");
-                        Console.WriteLine($"ID: {purchasedProduct.Id}");
-                    }
+                    case "4":
+                        AddToFavourites(marketplaceRepository, buyer);
+                        break;
 
-                    if (!buyer.PurchasedProducts.Any())
-                    {
-                        Console.WriteLine("\nNemate povijest kupljenih proizvoda.");
-                    }
-                    Console.WriteLine("\nPritisnite bilo što za povratak...");
-                    Console.ReadKey();
-                    Console.Clear();
-                    break;
+                    case "5":
+                        Console.Clear();
+                        Console.WriteLine("Povijest kupljenih proizvoda:\n");
 
-                case "6":
-                    Console.Clear();
-                    Console.WriteLine("Omiljeni proizvodi:\n");
+                        foreach (var purchasedProduct in buyer.PurchasedProducts)
+                        {
+                            Console.WriteLine($"\nNaziv: {purchasedProduct.Title}\nCijena: {purchasedProduct.Price}");
+                            Console.WriteLine($"ID: {purchasedProduct.Id}");
+                        }
 
-                    foreach (var favourites in buyer.FavouriteProducts)
-                    {
-                        Console.WriteLine($"\nNaziv: {favourites.Title}\nCijena: {favourites.Price}");
-                        Console.WriteLine($"ID: {favourites.Id}");
-                    }
+                        if (!buyer.PurchasedProducts.Any())
+                        {
+                            Console.WriteLine("\nNemate povijest kupljenih proizvoda.");
+                        }
+                        Console.WriteLine("\nPritisnite bilo što za povratak...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
 
-                    if (buyer.FavouriteProducts.Count == 0)
-                    {
-                        Console.WriteLine("\nNemate omiljenih proizvoda.");
-                    }
-                    Console.WriteLine("\nPritisnite bilo što za povratak...");
-                    Console.ReadKey();
-                    Console.Clear();
-                    break;
+                    case "6":
+                        Console.Clear();
+                        Console.WriteLine("Omiljeni proizvodi:\n");
 
-                case "7":
-                    RateProduct(marketplace, buyer);
-                    break;
+                        foreach (var favourites in buyer.FavouriteProducts)
+                        {
+                            Console.WriteLine($"\nNaziv: {favourites.Title}\nCijena: {favourites.Price}");
+                            Console.WriteLine($"ID: {favourites.Id}");
+                        }
 
-                case "0":
-                    Console.Clear();
-                    return;
+                        if (buyer.FavouriteProducts.Count == 0)
+                        {
+                            Console.WriteLine("\nNemate omiljenih proizvoda.");
+                        }
+                        Console.WriteLine("\nPritisnite bilo što za povratak...");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
 
-                default:
-                    Console.Clear();
-                    Console.WriteLine("Neispravan unos, pokusajte ponovno\n");
-                    break;
+                    case "7":
+                        RateProduct(marketplaceRepository, buyer);
+                        break;
+
+                    case "0":
+                        Console.Clear();
+                        return;
+
+                    default:
+                        Console.Clear();
+                        Console.WriteLine("Neispravan unos, pokusajte ponovno\n");
+                        break;
+                }
             }
         }
 
-    public static void AddToFavourites(MarketplaceRepository marketplaceRepository, Buyer buyer)
-    {
-
-        Console.Clear();
-        Console.WriteLine("Dodavanje proizvoda u omiljene:\n");
-
-        Product productToFavourite = null;
-        while (true)
+        public static void AddToFavourites(MarketplaceRepository marketplaceRepository, Buyer buyer)
         {
-            Console.WriteLine("Dostupni proizvodi:\n");
+
+            Console.Clear();
+            Console.WriteLine("Dodavanje proizvoda u omiljene:\n");
+
+            Product productToFavourite = null;
+            while (true)
+            {
+                Console.WriteLine("Dostupni proizvodi:\n");
+                foreach (var availableProduct in marketplaceRepository.GetAvailableProducts())
+                {
+                    Console.WriteLine($"\nNaziv: {availableProduct.Title} - Cijena: {availableProduct.Price}");
+                    Console.WriteLine($"ID: {availableProduct.Id}");
+                }
+
+                Console.WriteLine("\nUnesite naziv proizvoda koji zelite dodati u omiljene: ");
+                string favouriteProduct = Console.ReadLine();
+
+                productToFavourite = marketplaceRepository.GetAvailableProducts().FirstOrDefault(p => p.Title.Equals(favouriteProduct, StringComparison.OrdinalIgnoreCase));
+
+                if (productToFavourite == null)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Proizvod s unesenim nazivom nije pronadjen\n");
+                }
+                else if (buyer.FavouriteProducts.Contains(productToFavourite))
+                {
+                    Console.Clear();
+                    Console.WriteLine("Proizvod je vec u omiljenima, odaberite neki drugi\n");
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (productToFavourite != null)
+            {
+                buyer.FavouriteProducts.Add(productToFavourite);
+                Console.WriteLine($"\nProizvod '{productToFavourite.Title}' je uspjesno dodan u omiljene\n");
+            }
+            Console.WriteLine("\nPritisnite bilo sto za povratak...");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        public static bool IsValid(string productCategory, DateTime currentDate, MarketplaceRepository marketplaceRepository)
+        {
+            PromoCode promo = marketplaceRepository.GetPromoCodesByCategory(productCategory).FirstOrDefault(pc => pc.Category.Equals(productCategory, StringComparison.OrdinalIgnoreCase));
+
+            if (promo == null)
+            {
+                return false;
+            }
+
+            if (promo.ExpirationDate  < currentDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+        public static void BuyProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
+        {
+            Console.Clear();
+            Console.WriteLine("Kupnja prozvoda:\n");
+
+            Console.WriteLine("Dostupni proizvodi:");
             foreach (var availableProduct in marketplaceRepository.GetAvailableProducts())
             {
                 Console.WriteLine($"\nNaziv: {availableProduct.Title} - Cijena: {availableProduct.Price}");
                 Console.WriteLine($"ID: {availableProduct.Id}");
             }
 
-            Console.WriteLine("\nUnesite naziv proizvoda koji zelite dodati u omiljene: ");
-            string favouriteProduct = Console.ReadLine();
-
-            productToFavourite = marketplaceRepository.GetAvailableProducts().FirstOrDefault(p => p.Title.Equals(favouriteProduct, StringComparison.OrdinalIgnoreCase));
-
-            if (productToFavourite == null)
+            Guid productId;
+            while (true)
             {
+                Console.WriteLine("\nUnesite ID proizvoda ili 'exit' za povratak:");
+                string input = Console.ReadLine();
+
+                
+                if (input.ToLower() == "exit")
+                {
+                    Console.Clear();
+                    return;
+                }
+                else if (Guid.TryParse(input, out productId))
+                {
+                    break;
+                }
                 Console.Clear();
-                Console.WriteLine("Proizvod s unesenim nazivom nije pronadjen\n");
+                Console.WriteLine("Neispravan unos, unesite valjani ID proizvoda\n");
             }
-            else if (buyer.FavouriteProducts.Contains(productToFavourite))
+
+            var product = marketplaceRepository.GetAvailableProducts().FirstOrDefault(p => p.Id.ToString() == productId.ToString());
+
+            if (product == null)
             {
-                Console.Clear();
-                Console.WriteLine("Proizvod je vec u omiljenima, odaberite neki drugi\n");
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        if (productToFavourite != null)
-        {
-            buyer.FavouriteProducts.Add(productToFavourite);
-            Console.WriteLine($"\nProizvod '{productToFavourite.Title}' je uspjesno dodan u omiljene\n");
-        }
-        Console.WriteLine("\nPritisnite bilo sto za povratak...");
-        Console.ReadKey();
-        Console.Clear();
-    }
-
-    public static void BuyProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
-    {
-        Console.Clear();
-        Console.WriteLine("Kupnja prozvoda:\n");
-
-        Console.WriteLine("Dostupni proizvodi:");
-        foreach (var availableProduct in marketplaceRepository.GetAvailableProducts())
-        {
-            Console.WriteLine($"\nNaziv: {availableProduct.Title} - Cijena: {availableProduct.Price}");
-            Console.WriteLine($"ID: {availableProduct.Id}");
-        }
-
-        Guid productId;
-        while (true)
-        {
-            Console.WriteLine("\nUnesite ID proizvoda ili 'exit' za povratak:");
-            string input = Console.ReadLine();
-
-            if (Guid.TryParse(input, out productId))
-            {
-                break;
-            }
-            else if (input.ToLower() == "exit")
-            {
-                Console.Clear();
+                Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen ili nije dostupan");
                 return;
             }
-            Console.WriteLine("Neispravan unos, unesite valjani ID proizvoda\n");
-        }
 
-        var product = marketplaceRepository.GetAvailableProducts().FirstOrDefault(p => p.Id == productId);
-
-        if (product == null)
-        {
-            Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen ili nije dostupan");
-            return;
-        }
-
-        string promoCode = null;
-        while (true)
-        {
-            Console.WriteLine("\nImate li promo kod? (yes/no): ");
-            string confirm = Console.ReadLine().ToLower();
-
-            if (confirm == "yes")
+            string promoCode = null;
+            while (true)
             {
-                Console.WriteLine("Unesite kod: ");
-                promoCode = Console.ReadLine();
+                Console.WriteLine("\nImate li promo kod? (yes/no): ");
+                string confirm = Console.ReadLine().ToLower();
 
-                var promo = marketplaceRepository.GetPromoCodesByCategory(product.Category).FirstOrDefault(pc => pc.Code.Equals(promoCode, StringComparison.OrdinalIgnoreCase));
-
-                if (promo == null || promo.IsValid(product.Category, DateTime.Now))
+                if (confirm == "yes")
                 {
-                    Console.WriteLine("Uneseni kod nije valjan ili je istekao\n");
-                    promoCode = null;
+                    Console.WriteLine("Unesite kod: ");
+                    promoCode = Console.ReadLine();
+
+                    var promo = marketplaceRepository.GetPromoCodesByCategory(product.Category).FirstOrDefault(pc => pc.Code.Equals(promoCode, StringComparison.OrdinalIgnoreCase));
+
+                    string product_category = product.Category;
+                    if (promo == null || IsValid(product_category, DateTime.Now, marketplaceRepository))
+                    {
+                        Console.WriteLine("Uneseni kod nije valjan ili je istekao\n");
+                        promoCode = null;
+                    }
+                    break;
                 }
-                break;
+                else if (confirm == "no")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Unos nije valjan, unesite ponovno\n");
+                }
             }
-            else if (confirm == "no")
-            {
-                break;
-            }
-            else
-            {
-                Console.WriteLine("Unos nije valjan, unesite ponovno\n");
-            }
-        }
 
-        if (product != null && marketplaceRepository.TryBuyProduct(buyer, product))
-        {
-            Console.Clear();
-            Console.WriteLine($"\nUspjesno ste kupili proizvod '{product.Title}'\n");
-        }
-        else
-        {
-            Console.WriteLine("\nNeodovljan iznos na racunu ili proivod nije dostupan\n");
-        }
-        Console.WriteLine("\nPritisnite bilo sto za povratak...");
-        Console.ReadKey();
-        Console.Clear();
-    }
-
-    public static void ReturnProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
-    {
-        Console.Clear();
-        Console.WriteLine("Povratak kupljenog prozvoda:\n");
-
-        Console.WriteLine("Kupljeni proizvodi:");
-
-        if (buyer.PurchasedProducts.Count == 0)
-        {
-            Console.Clear();
-            Console.WriteLine("\nNemate kupljenih prozvoda");
-            return;
-        }
-
-        Product productToReturn = null;
-        while (true)
-        {
-            foreach (var product in buyer.PurchasedProducts)
-            {
-                Console.WriteLine($"\nNaziv: {product.Title}\nCijena: {product.Price}\nID: {product.Id}");
-            }
-            Console.WriteLine("\nUnesite ID proizvoda za povrat:");
-            string selectedProductId = Console.ReadLine();
-
-            productToReturn = buyer.PurchasedProducts.FirstOrDefault(p => p.Id.ToString() == selectedProductId);
-
-            if (productToReturn == null)
+            if (product != null && marketplaceRepository.TryBuyProduct(buyer, product))
             {
                 Console.Clear();
-                Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen, pokusajte ponovno");
-            }
-            else if (string.IsNullOrEmpty(selectedProductId))
-            {
-                Console.WriteLine("Neispravan unos, unesite ponovno\n");
+                Console.WriteLine($"\nUspjesno ste kupili proizvod '{product.Title}'\n");
             }
             else
             {
-                break;
+                Console.WriteLine("\nNeodovljan iznos na racunu ili proivod nije dostupan\n");
             }
-        }
-
-        try
-        {
-            marketplaceRepository.ReturnProduct(buyer, productToReturn);
+            Console.WriteLine("\nPritisnite bilo sto za povratak...");
+            Console.ReadKey();
             Console.Clear();
-            Console.WriteLine($"\nProizvod '{productToReturn.Title}' je uspjesno vracen.");
         }
-        catch (InvalidOperationException ex)
+
+        public static void ReturnProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
         {
-            Console.WriteLine(ex.Message);
-        }
-        Console.WriteLine("\nPritisnite bilo sto za povratak...");
-        Console.ReadKey();
-        Console.Clear();
-    }
+            Console.Clear();
+            Console.WriteLine("Povratak kupljenog prozvoda:\n");
 
+            Console.WriteLine("Kupljeni proizvodi:");
 
-    public static void RateProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
-    {
-        Console.Clear();
-
-        Console.WriteLine("Ocijeni proizvod:\n");
-
-        var availableProducts = marketplaceRepository.GetAvailableProducts();
-
-        Product selectedProduct = null;
-        while (true)
-        {
-            Console.WriteLine("Dostupni proizvodi:");
-            foreach (var product in availableProducts)
-            {
-                Console.WriteLine($"\tNaziv: {product.Title} - Cijena: {product.Price} - Opis: {product.Description}");
-            }
-
-            Console.WriteLine("\nUnesite naziv proizvoda kojeg zelite ocijeniti: ");
-            string name = Console.ReadLine();
-
-            selectedProduct = availableProducts.FirstOrDefault(p => p.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-            if (selectedProduct == null)
+            if (buyer.PurchasedProducts.Count == 0)
             {
                 Console.Clear();
-                Console.WriteLine("Proizvod nije pronadjen, pokusajte ponovno\n");
+                Console.WriteLine("\nNemate kupljenih prozvoda");
+                return;
+            }
+
+            Product productToReturn = null;
+            while (true)
+            {
+                foreach (var product in buyer.PurchasedProducts)
+                {
+                    Console.WriteLine($"\nNaziv: {product.Title}\nCijena: {product.Price}\nID: {product.Id}");
+                }
+                Console.WriteLine("\nUnesite ID proizvoda za povrat:");
+                string selectedProductId = Console.ReadLine();
+
+                productToReturn = buyer.PurchasedProducts.FirstOrDefault(p => p.Id.ToString() == selectedProductId);
+
+                if (productToReturn == null)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen, pokusajte ponovno");
+                }
+                else if (string.IsNullOrEmpty(selectedProductId))
+                {
+                    Console.WriteLine("Neispravan unos, unesite ponovno\n");
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (marketplaceRepository.ReturnProduct(buyer, productToReturn))
+            {
+                Console.Clear();
+                Console.WriteLine($"\nProizvod '{productToReturn.Title}' je uspjesno vracen.");
             }
             else
             {
-                break;
-            }
-        }
-
-        decimal rating;
-        while (true)
-        {
-            Console.WriteLine($"\nOdabrali ste proizvod: {selectedProduct.Title}\n");
-            Console.WriteLine("\nUnesite ocjenu (1 - 5): ");
-
-            if (!decimal.TryParse(Console.ReadLine(), out rating) || rating < 1 || rating > 5)
-            {
+                Console.WriteLine("\nNeuspjesno vracanje proizvoda\n");
+                Console.WriteLine("\nPritisnite bilo sto za povratak...");
+                Console.ReadKey();
                 Console.Clear();
-                Console.WriteLine("Neispravan unos, pokusajte ponovno\n");
             }
-            else
+        }
+
+        public static void RateProduct(MarketplaceRepository marketplaceRepository, Buyer buyer)
+        {
+            Console.Clear();
+
+            Console.WriteLine("Ocijeni proizvod:\n");
+
+            var availableProducts = marketplaceRepository.GetAvailableProducts();
+
+            Product selectedProduct = null;
+            while (true)
             {
-                break;
+                Console.WriteLine("Dostupni proizvodi:");
+                foreach (var product in availableProducts)
+                {
+                    Console.WriteLine($"\tNaziv: {product.Title} - Cijena: {product.Price} - Opis: {product.Description}");
+                }
+
+                Console.WriteLine("\nUnesite naziv proizvoda kojeg zelite ocijeniti: ");
+                string name = Console.ReadLine();
+
+                selectedProduct = availableProducts.FirstOrDefault(p => p.Title.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+                if (selectedProduct == null)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Proizvod nije pronadjen, pokusajte ponovno\n");
+                }
+                else
+                {
+                    break;
+                }
             }
-        }
 
-        try
-        {
-            marketplaceRepository.AddRating(selectedProduct, rating);
-            Console.WriteLine($"\nUspjesno ste dodali ocjenu {rating} proizvodu '{selectedProduct.Title}'\n");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Dogodila se pogreska prilikom ocjenjivanja: {ex.Message}\n");
-        }
+            decimal rating;
+            while (true)
+            {
+                Console.WriteLine($"\nOdabrali ste proizvod: {selectedProduct.Title}\n");
+                Console.WriteLine("\nUnesite ocjenu (1 - 5): ");
 
-        Console.WriteLine("\nPritisnite bilo sto za povratak...");
-        Console.ReadKey();
-        Console.Clear();
+                if (!decimal.TryParse(Console.ReadLine(), out rating) || rating < 1 || rating > 5)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Neispravan unos, pokusajte ponovno\n");
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            try
+            {
+                marketplaceRepository.AddRating(selectedProduct, rating);
+                Console.WriteLine($"\nUspjesno ste dodali ocjenu {rating} proizvodu '{selectedProduct.Title}'\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Dogodila se pogreska prilikom ocjenjivanja: {ex.Message}\n");
+            }
+
+            Console.WriteLine("\nPritisnite bilo sto za povratak...");
+            Console.ReadKey();
+            Console.Clear();
+        }
     }
 }
+

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
 
 namespace MarketplaceApp.Data.Entities.Models
 {
@@ -13,7 +15,7 @@ namespace MarketplaceApp.Data.Entities.Models
         public ProductStatus Status { get; set; }
         public Seller Seller { get; set; }
         public string Category { get; set; }
-        public decimal AverageRating { get; private set; }
+        public decimal AverageRating { get; set; }
 
         public enum ProductStatus
         {
@@ -21,7 +23,7 @@ namespace MarketplaceApp.Data.Entities.Models
             OnSale
         }
 
-        public Product(string title, string description, decimal price, Seller seller, string category)
+        public Product(string title, string description, decimal price, string category, Seller seller)
         {
             Id = Guid.NewGuid().ToString();
             Title = title;
@@ -31,28 +33,6 @@ namespace MarketplaceApp.Data.Entities.Models
             Status = ProductStatus.OnSale;
             Category = category;
             AverageRating = 0.0m;
-        }
-
-        private int ratingCount = 0;
-        private decimal totalRating = 0;
-
-        public void AddRating(decimal newRating)
-        {
-            ratingCount++;
-            totalRating += newRating;
-            AverageRating = totalRating / ratingCount;
-        }
-
-        public void ChangePrice(decimal newPrice, Seller seller)
-        {
-            if (seller != null && seller.Products.Contains(this))
-            {
-                Price = newPrice;
-            }
-            else
-            {
-                throw new InvalidOperationException("Seller is not the owner of this product.");
-            }
         }
     }
 }

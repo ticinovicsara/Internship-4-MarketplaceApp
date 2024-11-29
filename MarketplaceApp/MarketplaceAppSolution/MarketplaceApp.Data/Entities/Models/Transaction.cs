@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MarketplaceApp.Data.Entities.Models;
+using MarketplaceApp.Data;
 using System.Linq;
 
 namespace MarketplaceApp.Data.Entities.Models
@@ -17,9 +19,8 @@ namespace MarketplaceApp.Data.Entities.Models
             this.Id = Guid.NewGuid();
             this.BuyerName = buyer.Name;
             this.SellerName = seller.Name;
-            this.DateOfTransacton = DateTime.Now;
-            this.Amount = amount;
             this.DateOfTransaction = DateTime.Now;
+            this.Amount = amount;
         }
     }
 }
