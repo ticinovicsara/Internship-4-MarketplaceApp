@@ -29,8 +29,8 @@ namespace MarketplaceApp.Data
 
             ana.PurchasedProducts.Add(product1);
             ana.PurchasedProducts.Add(product2);
-            marko.Earnings += product1.Price - 0.05*product1.Price;
-            marko.Earnings += product2.Price - 0.05 * product2.Price;
+            marko.Earnings += product1.Price * 0.95m;
+            marko.Earnings += product2.Price * 0.95m;
 
             _context.Buyers.Add(ana);
             _context.Sellers.Add(marko);

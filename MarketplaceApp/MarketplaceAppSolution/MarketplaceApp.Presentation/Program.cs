@@ -33,8 +33,6 @@ namespace MarketplaceApp.Presentation
                 context
             );
 
-            var buyerRepository = new BuyerRepository(context, transactionService);
-
             var handleRegistration = new HandleRegistration(context, marketplaceRepository);
             var handleLogin = new HandleLogin(context, marketplaceRepository);
 

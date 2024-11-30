@@ -14,7 +14,6 @@ namespace MarketplaceApp.Domain.Repositories
     {
         private readonly UserRepository _userRepository;
         private readonly SellerRepository _sellerRepository;
-        private readonly BuyerRepository _buyerRepository;
         private readonly ProductRepository _productRepository;
         private readonly PromoCodeRepository _promoCodeRepository;
         private readonly ITransactionService _transactionService;
@@ -111,6 +110,23 @@ namespace MarketplaceApp.Domain.Repositories
             _transactionService.LogTransaction(buyer, seller, amount);
         }
 
+        public bool ReturnProduct(Buyer buyer, Product product)
+        {
+            if (!buyer.PurchasedProducts.Contains(product))
+            {
+                return false;
+            }
+
+            buyer.PurchasedProducts.Remove(product);
+            product.Status = Product.ProductStatus.OnSale;
+            buyer.Balance += product.Price * 0.8m;
+            product.Seller.Earnings -= product.Price * 0.95m;
+
+            _transactionService.LogTransaction(buyer, product.Seller, -(product.Price * 0.8m));
+
+            return true;
+        }
+
 
         public bool IsValid(string productCategory, DateTime currDate)
         {
@@ -149,11 +165,6 @@ namespace MarketplaceApp.Domain.Repositories
             return _productRepository.GetProductsByCategory(category);
         }
 
-
-        public decimal GetTotalEarnings()
-        {
-            return _sellerRepository.GetTotalEarnings();
-        }
         
         public decimal GetEarningsForTimePeriod(Seller seller, DateTime startDate, DateTime endDate)
         {
@@ -169,12 +180,6 @@ namespace MarketplaceApp.Domain.Repositories
         public List<PromoCode> GetPromoCodesByCategory(string category)
         {
             return _context.PromoCodes.Where(pc => pc.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-
-        public bool ReturnProduct(Buyer buyer, Product product)
-        { 
-            return _buyerRepository.ReturnProduct(buyer, product);
         }
 
 

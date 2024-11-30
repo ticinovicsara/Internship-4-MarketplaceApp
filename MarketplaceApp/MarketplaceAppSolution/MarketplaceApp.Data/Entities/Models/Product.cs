@@ -8,7 +8,7 @@ namespace MarketplaceApp.Data.Entities.Models
 {
     public class Product
     {
-        public string Id { get; private set; }
+        public Guid Id { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
@@ -25,7 +25,7 @@ namespace MarketplaceApp.Data.Entities.Models
 
         public Product(string title, string description, decimal price, string category, Seller seller)
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid();
             Title = title;
             Description = description;
             Price = price;

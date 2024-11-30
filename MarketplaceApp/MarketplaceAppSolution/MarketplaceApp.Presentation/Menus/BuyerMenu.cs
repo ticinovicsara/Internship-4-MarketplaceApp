@@ -20,7 +20,7 @@ namespace MarketplaceApp.Presentation.Menus
                 Console.WriteLine("1 - Pregled dostupnih proizvoda");
                 Console.WriteLine("2 - Kupnja proizvoda");
                 Console.WriteLine("3 - Povratak proizvoda");
-                Console.WriteLine("4 - Dodavanje prizvoda u omiljene");
+                Console.WriteLine("4 - Dodavanje proizvoda u omiljene");
                 Console.WriteLine("5 - Pregled povijesti kupljenih proizvoda");
                 Console.WriteLine("6 - Pregled omiljenih proizvoda");
                 Console.WriteLine("7 - Ocjenjivanje proizvoda");
@@ -285,22 +285,31 @@ namespace MarketplaceApp.Presentation.Menus
                 Console.WriteLine("\nUnesite ID proizvoda za povrat:");
                 string selectedProductId = Console.ReadLine();
 
-                productToReturn = buyer.PurchasedProducts.FirstOrDefault(p => p.Id.ToString() == selectedProductId);
+                if (string.IsNullOrEmpty(selectedProductId))
+                {
+                    Console.WriteLine("ID ne moze biti prazan, pokusajte ponovo.\n");
+                    continue;
+                }
+
+                if (!Guid.TryParse(selectedProductId, out Guid parsedGuid))
+                {
+                    Console.WriteLine("Uneseni ID nije validan GUID, pokusajte ponovo.\n");
+                    continue;
+                }
+
+                productToReturn = buyer.PurchasedProducts.FirstOrDefault(p => p.Id == parsedGuid);
 
                 if (productToReturn == null)
                 {
-                    Console.Clear();
-                    Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen, pokusajte ponovno");
-                }
-                else if (string.IsNullOrEmpty(selectedProductId))
-                {
-                    Console.WriteLine("Neispravan unos, unesite ponovno\n");
+                    Console.WriteLine("Proizvod s unesenim ID-om nije pronadjen, pokusajte ponovo.\n");
                 }
                 else
                 {
                     break;
                 }
             }
+
+            Console.WriteLine("Dosllvksdv");
 
             if (marketplaceRepository.ReturnProduct(buyer, productToReturn))
             {
